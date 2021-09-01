@@ -137,7 +137,25 @@ Test_ASE_Outliers<-function(Eg_std, eh1, eh2, r0, p0){
     p.val<-1
   }
   else{
-  p.val<-integrate(integrand,-rad,rad,eh1,eh2, Eg_std, r0, p0, log_BinCoeff, abs.tol = 0, rel.tol = 1e-4)$value
+    # this is a blanket wrapper, any error will return NA for the pval, it does not check whether the 
+    # integral is divergent or there is another error. 
+    pval<-tryCatch({
+      integrate(integrand,-rad,rad,eh1,eh2, Eg_std, r0, p0, log_BinCoeff, abs.tol = 0, rel.tol = 1e-4)$value
+    }, error=function(e){
+      message("Error in calculating pvalue retruning NA")
+      NA 
+    })
+    
+    # this one is more fragile but you know what went wrong
+    # pval<-try({
+    #   integrate(integrand,-rad,rad,eh1,eh2, Eg_std, r0, p0, log_BinCoeff, abs.tol = 0, rel.tol = 1e-4)$value
+    #})
+    #
+    # if(class(pval)=="try-error"){
+    #   message(attr(pval, "condition")$message)
+    #   pval<-NA
+    #}
+  
   }
   return(p.val)
 }
